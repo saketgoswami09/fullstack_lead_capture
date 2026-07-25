@@ -1,13 +1,14 @@
-// src/main.jsx — React application bootstrap
-// Responsibilities: render <App /> into the DOM root
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import { Provider } from 'react-redux';
+import { store } from './store/store';
+import App from './App';
+import './index.css';
 
-// TODO: import React from 'react';
-// TODO: import ReactDOM from 'react-dom/client';
-// TODO: import App from './App';
-// TODO: import './index.css';
-
-// ReactDOM.createRoot(document.getElementById('root')).render(
-//   <React.StrictMode>
-//     <App />
-//   </React.StrictMode>
-// );
+ReactDOM.createRoot(document.getElementById('root')).render(
+  <React.StrictMode>
+    <Provider store={store}>
+      <App />
+    </Provider>
+  </React.StrictMode>
+);
