@@ -7,7 +7,7 @@ export const leadsApi = createApi({
   reducerPath: 'leadsApi',
 
   baseQuery: fetchBaseQuery({
-    baseUrl: '/api',
+    baseUrl: import.meta.env.VITE_API_URL || '/api',
     // Always include HTTP-only cookies in cross-origin or same-origin requests
     credentials: 'include',
   }),
