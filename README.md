@@ -10,7 +10,7 @@
 
 📦 **Backend API:** [https://aura-backend-xhx5.onrender.com/api](https://aura-backend-xhx5.onrender.com/api)
 
-🎥 **Loom Walkthrough:** [Link to your Loom Video]
+🎥 **Video Walkthrough:** [Watch on Google Drive](https://drive.google.com/file/d/1OHgbzKT6xDk7JJoBTCt99GED_Gn85DDz/view?usp=sharing)
 
 ---
 
