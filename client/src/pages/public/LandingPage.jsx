@@ -1,17 +1,25 @@
 import LeadForm from "../../components/LeadForm";
 import ladyWithLetter from "../../assets/lady_with_letter.svg";
-import { CheckCircle } from "lucide-react";
+import { CheckCircle, Hexagon } from "lucide-react";
 
 export default function LandingPage() {
   return (
     <div 
-      className="min-h-screen font-sans text-gray-900 flex flex-col"
+      className="min-h-screen font-sans text-gray-900 flex flex-col relative"
       style={{
         backgroundColor: "#ffffff",
         backgroundImage: "radial-gradient(circle at top left, #eef4ff, transparent 40%), radial-gradient(circle at bottom right, #f5f3ff, transparent 35%)"
       }}
     >
-      <main className="flex-grow flex flex-col lg:flex-row w-full min-h-screen">
+      {/* ── Brand Navbar ── */}
+      <nav className="absolute top-0 left-0 w-full p-6 lg:px-12 flex items-center gap-2 z-20">
+        <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 shadow-md shadow-blue-500/20 text-white">
+          <Hexagon className="w-6 h-6 fill-white/20" strokeWidth={2} />
+        </div>
+        <span className="text-xl font-bold tracking-tight text-gray-900">Aura</span>
+      </nav>
+
+      <main className="flex-grow flex flex-col lg:flex-row w-full min-h-screen pt-20 lg:pt-0">
         
         {/* ── Left Column: Emotion & Value ─────────────── */}
         <div className="w-full lg:w-1/2 bg-white/30 flex flex-col justify-center p-8 sm:p-16 lg:p-20 xl:p-24 border-b lg:border-b-0 lg:border-r border-gray-200/40">

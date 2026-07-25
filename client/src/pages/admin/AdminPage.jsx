@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { 
-  Search, LogOut, LayoutGrid, Sparkles, ChevronDown, 
+  Search, LogOut, LayoutGrid, Hexagon, ChevronDown, 
   Users, Inbox, MessageCircle, CheckCircle 
 } from "lucide-react";
 import { 
@@ -95,7 +95,7 @@ export default function AdminPage() {
   };
 
   if (isAdminLoading) {
-    return <div className="min-h-screen bg-canvas flex items-center justify-center"><Sparkles className="animate-spin text-brand-500 w-8 h-8" /></div>;
+    return <div className="min-h-screen bg-canvas flex items-center justify-center"><Hexagon className="animate-spin text-brand-500 w-8 h-8 fill-brand-500/20" /></div>;
   }
 
   if (!adminData || isAdminError) {
@@ -104,7 +104,7 @@ export default function AdminPage() {
         <Card className="w-full max-w-sm p-6 space-y-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded-3xl border-line">
           <div className="text-center space-y-2">
             <div className="brand-gradient mx-auto flex h-12 w-12 items-center justify-center rounded-xl text-white shadow-sm">
-              <Sparkles className="h-6 w-6" />
+              <Hexagon className="h-6 w-6 fill-white/20" />
             </div>
             <h1 className="text-xl font-bold text-ink">Admin Access</h1>
             <p className="text-sm text-ink-soft">Sign in with your admin credentials.</p>
@@ -149,9 +149,9 @@ export default function AdminPage() {
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-2.5">
             <div className="brand-gradient flex h-9 w-9 items-center justify-center rounded-xl text-white">
-              <Sparkles className="h-5 w-5" />
+              <Hexagon className="h-5 w-5 fill-white/20" />
             </div>
-            <span className="font-display text-lg font-bold text-ink">LeadCapture CRM</span>
+            <span className="font-display text-lg font-bold text-ink">Aura Workspace</span>
           </div>
           <Button variant="ghost" size="sm" onClick={handleLogout} className="hover:bg-surface-muted transition-colors">
             <LogOut className="h-4 w-4" /> Log out
