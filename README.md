@@ -7,6 +7,12 @@
 
 ---
 
+## AI Usage Statement
+
+In building Aura, I utilized AI tools (primarily as a pair-programmer) to accelerate the scaffolding of boilerplate code (like Mongoose models and Express controllers) and to assist in migrating the legacy `useEffect` fetching logic over to the more robust RTK Query cache system. However, all core architectural decisions—such as upgrading to secure HTTP-Only JWT cookies, structuring the Tailwind design system, and implementing cross-origin production deployments—were driven by my own engineering judgment to ensure a production-ready, interview-grade application.
+
+---
+
 ## Architecture & Tech Stack
 
 | Layer      | Technology                              |
