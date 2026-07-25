@@ -1,0 +1,358 @@
+{
+  "info": {
+    "name": "Lead Capture API",
+    "_postman_id": "lead-capture-api-v1",
+    "description": "Test suite for the Lead Capture MERN application.\n\nBase URL: http://localhost:5000/api\n\nFeatures tested:\n- Lead submission (happy path)\n- Validation errors (422)\n- Duplicate email (409)\n- Health check",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "BASE_URL",
+      "value": "http://localhost:5000/api",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health Check",
+      "item": [
+        {
+          "name": "GET /health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/health",
+              "host": ["{{BASE_URL}}"],
+              "path": ["health"]
+            },
+            "description": "Verify the API server is running."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('success is true', () => {",
+                  "  const body = pm.response.json();",
+                  "  pm.expect(body.success).to.be.true;",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Lead Submission — Public",
+      "item": [
+        {
+          "name": "POST /leads — ✅ Happy Path",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"John Doe\",\n  \"email\": \"john@example.com\",\n  \"budgetRange\": \"1k-5k\",\n  \"message\": \"I need a landing page built for my startup.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/leads",
+              "host": ["{{BASE_URL}}"],
+              "path": ["leads"]
+            },
+            "description": "Submit a valid lead. Expect 201 Created with the saved document."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 201', () => pm.response.to.have.status(201));",
+                  "pm.test('success is true', () => {",
+                  "  const body = pm.response.json();",
+                  "  pm.expect(body.success).to.be.true;",
+                  "  pm.expect(body.data).to.have.property('_id');",
+                  "  pm.expect(body.data.status).to.equal('New');",
+                  "  pm.expect(body.data.email).to.equal('john@example.com');",
+                  "  // Save lead ID for later tests",
+                  "  pm.collectionVariables.set('leadId', body.data._id);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST /leads — ❌ Empty Body (422)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/leads",
+              "host": ["{{BASE_URL}}"],
+              "path": ["leads"]
+            },
+            "description": "Submit empty body. Expect 422 with field-level error messages."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 422', () => pm.response.to.have.status(422));",
+                  "pm.test('Has validation errors array', () => {",
+                  "  const body = pm.response.json();",
+                  "  pm.expect(body.success).to.be.false;",
+                  "  pm.expect(body.errors).to.be.an('array').with.length.greaterThan(0);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST /leads — ❌ Invalid Email (422)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"J\",\n  \"email\": \"not-an-email\",\n  \"budgetRange\": \"maybe\",\n  \"message\": \"hi\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/leads",
+              "host": ["{{BASE_URL}}"],
+              "path": ["leads"]
+            },
+            "description": "Submit with invalid email, bad budgetRange enum, name too short, message too short. Expect 422 with multiple errors."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 422', () => pm.response.to.have.status(422));",
+                  "pm.test('Multiple field errors returned', () => {",
+                  "  const body = pm.response.json();",
+                  "  pm.expect(body.errors.length).to.be.greaterThan(1);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST /leads — ❌ Duplicate Email (409)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"John Doe Again\",\n  \"email\": \"john@example.com\",\n  \"budgetRange\": \"5k-10k\",\n  \"message\": \"Submitting the same email a second time.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/leads",
+              "host": ["{{BASE_URL}}"],
+              "path": ["leads"]
+            },
+            "description": "Submit the same email that was used in the Happy Path test. Expect 409 Conflict."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 409', () => pm.response.to.have.status(409));",
+                  "pm.test('Duplicate key message', () => {",
+                  "  const body = pm.response.json();",
+                  "  pm.expect(body.success).to.be.false;",
+                  "  pm.expect(body.message).to.include('email');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST /leads — ❌ Missing Message (422)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Jane Smith\",\n  \"email\": \"jane@example.com\",\n  \"budgetRange\": \">10k\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/leads",
+              "host": ["{{BASE_URL}}"],
+              "path": ["leads"]
+            },
+            "description": "Submit without the message field. Expect 422 with a message error."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 422', () => pm.response.to.have.status(422));",
+                  "pm.test('Message field error present', () => {",
+                  "  const body = pm.response.json();",
+                  "  const fields = body.errors.map(e => e.field);",
+                  "  pm.expect(fields).to.include('message');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST /leads — ❌ Invalid Budget Range (422)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Alice Brown\",\n  \"email\": \"alice@example.com\",\n  \"budgetRange\": \"tons of money\",\n  \"message\": \"This budget range is not in the allowed list.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/leads",
+              "host": ["{{BASE_URL}}"],
+              "path": ["leads"]
+            },
+            "description": "Submit with a budgetRange not in the enum. Expect 422."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 422', () => pm.response.to.have.status(422));",
+                  "pm.test('budgetRange field error present', () => {",
+                  "  const body = pm.response.json();",
+                  "  const fields = body.errors.map(e => e.field);",
+                  "  pm.expect(fields).to.include('budgetRange');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST /leads — ✅ Second Valid Lead",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Jane Smith\",\n  \"email\": \"jane@example.com\",\n  \"budgetRange\": \">10k\",\n  \"message\": \"Looking for a full e-commerce platform with custom integrations.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/leads",
+              "host": ["{{BASE_URL}}"],
+              "path": ["leads"]
+            },
+            "description": "Add a second lead so admin tests have data to work with."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 201', () => pm.response.to.have.status(201));",
+                  "pm.test('Lead created with status New', () => {",
+                  "  const body = pm.response.json();",
+                  "  pm.expect(body.data.status).to.equal('New');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
