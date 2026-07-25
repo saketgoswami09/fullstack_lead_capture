@@ -1,0 +1,25 @@
+{
+  "name": "lead-capture",
+  "version": "1.0.0",
+  "description": "> Full-stack lead capture product with a public landing page and a protected admin dashboard.",
+  "main": "index.js",
+  "scripts": {
+    "dev": "concurrently \"npm run dev --prefix server\" \"npm run dev --prefix client\"",
+    "install:all": "npm install && npm install --prefix server && npm install --prefix client",
+    "build:client": "npm run build --prefix client"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/saketgoswami09/fullstack_lead_capture.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/saketgoswami09/fullstack_lead_capture/issues"
+  },
+  "homepage": "https://github.com/saketgoswami09/fullstack_lead_capture#readme",
+  "devDependencies": {
+    "concurrently": "^10.0.4"
+  }
+}
