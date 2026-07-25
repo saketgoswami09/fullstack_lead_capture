@@ -50,6 +50,9 @@ AI was used as a development assistant for scaffolding repetitive boilerplate, e
 ### Landing Page
 ![Landing Page](./client/public/LandingPage.png)
 
+### Form Validation
+![Form Validation](./client/public/validationHandling.png)
+
 ### Successful Lead Capture
 ![Message Sent](./client/public/MessageSent.png)
 
