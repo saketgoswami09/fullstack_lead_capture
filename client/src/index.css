@@ -18,8 +18,8 @@
   --color-ink-soft:     #64748b;
   --color-line:         #e2e8f0;
 
-  --font-sans:    "Inter", system-ui, sans-serif;
-  --font-display: "Sora", "Inter", system-ui, sans-serif;
+  --font-sans:    "Gilroy", system-ui, sans-serif;
+  --font-display: "Poppins",  system-ui, sans-serif;
 
   --shadow-card: 0 1px 2px rgba(16,24,40,0.04), 0 8px 24px -12px rgba(16,24,40,0.12);
   --shadow-soft: 0 1px 3px rgba(16,24,40,0.06), 0 1px 2px rgba(16,24,40,0.04);
