@@ -48,13 +48,13 @@ AI was used as a development assistant for scaffolding repetitive boilerplate, e
 ## Screenshots
 
 ### Landing Page
-*(Screenshot of the beautiful public landing page goes here)*
+![Landing Page](./client/public/LandingPage.png)
+
+### Successful Lead Capture
+![Message Sent](./client/public/MessageSent.png)
 
 ### Admin Dashboard
-*(Screenshot of the admin leads table goes here)*
-
-### Login
-*(Screenshot of the secure login portal goes here)*
+![Admin Dashboard](./client/public/dashboardaura.png)
 
 ---
 
