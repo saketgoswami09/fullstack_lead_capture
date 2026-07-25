@@ -2,7 +2,7 @@
 
 const Lead         = require('../models/Lead');
 const asyncHandler = require('../utils/asyncHandler');
-const { successResponse } = require('../utils/apiResponse');
+const { successResponse, errorResponse } = require('../utils/apiResponse');
 
 /**
  * @desc    Get all leads with optional search and pagination
@@ -62,7 +62,7 @@ exports.updateLeadStatus = asyncHandler(async (req, res) => {
   ).select('-__v');
 
   if (!lead) {
-    return res.status(404).json({ success: false, message: 'Lead not found' });
+    return errorResponse(res, 'Lead not found', 404);
   }
 
   successResponse(res, lead, `Lead status updated to "${status}"`);
