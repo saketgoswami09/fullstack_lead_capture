@@ -8,6 +8,7 @@ const mongoSanitize = require('express-mongo-sanitize');
 const rateLimit    = require('express-rate-limit');
 
 const leadRoutes   = require('../routes/leadRoutes');
+const adminRoutes  = require('../routes/adminRoutes');
 const errorHandler = require('../middleware/errorHandler');
 
 const app = express();
@@ -37,7 +38,7 @@ if (process.env.NODE_ENV === 'development') {
 
 // ─── Routes ───────────────────────────────────────────────────────────────────
 app.use('/api/leads', leadRoutes);
-// admin routes will be mounted here in the next feature branch
+app.use('/api/admin', adminRoutes);
 
 // ─── Health check ─────────────────────────────────────────────────────────────
 app.get('/api/health', (req, res) =>

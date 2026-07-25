@@ -1,16 +1,19 @@
-// routes/adminRoutes.js — Admin API routes
-// Responsibilities: define protected admin endpoints, attach auth & validation middleware
-
 'use strict';
 
-// const { Router } = require('express');
-// const { getAllLeads, updateLeadStatus } = require('../controllers/adminController');
-// const { adminAuth } = require('../middleware/adminAuth');
-// const { validateStatusUpdate } = require('../middleware/validators');
+const { Router } = require('express');
+const { getAllLeads, updateLeadStatus } = require('../controllers/adminController');
+const adminAuth                         = require('../middleware/adminAuth');
+const { validateStatusUpdate }          = require('../middleware/validators');
 
-// const router = Router();
-// router.use(adminAuth);                                          // protect all admin routes
-// router.get('/leads', getAllLeads);
-// router.patch('/leads/:id/status', validateStatusUpdate, updateLeadStatus);
+const router = Router();
 
-// module.exports = router;
+// All routes below require the admin secret header
+router.use(adminAuth);
+
+// GET  /api/admin/leads              → list all leads (search + pagination)
+router.get('/leads', getAllLeads);
+
+// PATCH /api/admin/leads/:id/status  → update lead status
+router.patch('/leads/:id/status', validateStatusUpdate, updateLeadStatus);
+
+module.exports = router;
