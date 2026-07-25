@@ -10,6 +10,11 @@
       "key": "BASE_URL",
       "value": "http://localhost:5000/api",
       "type": "string"
+    },
+    {
+      "key": "ADMIN_SECRET",
+      "value": "change_me_in_production",
+      "type": "string"
     }
   ],
   "item": [
@@ -351,6 +356,112 @@
               }
             }
           ]
+        }
+      ]
+    },
+    {
+      "name": "Admin API — Protected",
+      "item": [
+        {
+          "name": "GET /admin/leads — ✅ All Leads",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "x-admin-secret", "value": "{{ADMIN_SECRET}}" }],
+            "url": { "raw": "{{BASE_URL}}/admin/leads", "host": ["{{BASE_URL}}"], "path": ["admin", "leads"] },
+            "description": "Fetch all leads. Expect 200 with leads array and pagination metadata."
+          },
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+            "pm.test('Has leads array and pagination', () => {",
+            "  const { data } = pm.response.json();",
+            "  pm.expect(data.leads).to.be.an('array');",
+            "  pm.expect(data.pagination).to.have.property('total');",
+            "  if (data.leads.length > 0) pm.collectionVariables.set('leadId', data.leads[0]._id);",
+            "});"
+          ]}}]
+        },
+        {
+          "name": "GET /admin/leads?search=john — ✅ Search",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "x-admin-secret", "value": "{{ADMIN_SECRET}}" }],
+            "url": {
+              "raw": "{{BASE_URL}}/admin/leads?search=john",
+              "host": ["{{BASE_URL}}"], "path": ["admin", "leads"],
+              "query": [{ "key": "search", "value": "john" }]
+            },
+            "description": "Search leads by name or email. Expect results containing 'john'."
+          },
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+            "pm.test('Results match search term', () => {",
+            "  const { data } = pm.response.json();",
+            "  data.leads.forEach(lead => {",
+            "    const matches = lead.name.toLowerCase().includes('john') || lead.email.toLowerCase().includes('john');",
+            "    pm.expect(matches).to.be.true;",
+            "  });",
+            "});"
+          ]}}]
+        },
+        {
+          "name": "GET /admin/leads — ❌ No Secret (401)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{BASE_URL}}/admin/leads", "host": ["{{BASE_URL}}"], "path": ["admin", "leads"] },
+            "description": "Request without x-admin-secret header. Expect 401 Unauthorized."
+          },
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status is 401', () => pm.response.to.have.status(401));",
+            "pm.test('Unauthorized message', () => {",
+            "  pm.expect(pm.response.json().success).to.be.false;",
+            "});"
+          ]}}]
+        },
+        {
+          "name": "PATCH /admin/leads/:id/status — ✅ Update to Contacted",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "x-admin-secret", "value": "{{ADMIN_SECRET}}" },
+              { "key": "Content-Type",   "value": "application/json" }
+            ],
+            "body": { "mode": "raw", "raw": "{\"status\": \"Contacted\"}", "options": { "raw": { "language": "json" }}},
+            "url": {
+              "raw": "{{BASE_URL}}/admin/leads/{{leadId}}/status",
+              "host": ["{{BASE_URL}}"], "path": ["admin", "leads", "{{leadId}}", "status"]
+            },
+            "description": "Update the lead saved in leadId variable to Contacted. Run after GET all leads."
+          },
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+            "pm.test('Lead status is Contacted', () => {",
+            "  pm.expect(pm.response.json().data.status).to.equal('Contacted');",
+            "});"
+          ]}}]
+        },
+        {
+          "name": "PATCH /admin/leads/:id/status — ❌ Invalid Status (422)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "x-admin-secret", "value": "{{ADMIN_SECRET}}" },
+              { "key": "Content-Type",   "value": "application/json" }
+            ],
+            "body": { "mode": "raw", "raw": "{\"status\": \"Pending\"}", "options": { "raw": { "language": "json" }}},
+            "url": {
+              "raw": "{{BASE_URL}}/admin/leads/{{leadId}}/status",
+              "host": ["{{BASE_URL}}"], "path": ["admin", "leads", "{{leadId}}", "status"]
+            },
+            "description": "Try to set an invalid status value. Expect 422 validation error."
+          },
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status is 422', () => pm.response.to.have.status(422));",
+            "pm.test('status field error present', () => {",
+            "  const fields = pm.response.json().errors.map(e => e.field);",
+            "  pm.expect(fields).to.include('status');",
+            "});"
+          ]}}]
         }
       ]
     }
