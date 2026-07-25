@@ -11,7 +11,8 @@ const generateTokenAndSetCookie = (res, adminId) => {
   res.cookie('jwt', token, {
     httpOnly: true, // Prevent XSS
     secure: process.env.NODE_ENV === 'production', // HTTPS only in production
-    sameSite: 'strict', // Prevent CSRF
+    // 'none' is required for cross-domain cookies (e.g., Vercel frontend to Render backend)
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict', 
     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     path: '/',
   });
@@ -48,7 +49,7 @@ exports.logout = (req, res) => {
   res.cookie('jwt', '', {
     httpOnly: true,
     expires: new Date(0),
-    sameSite: 'strict',
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
     secure: process.env.NODE_ENV === 'production',
     path: '/',
   });
