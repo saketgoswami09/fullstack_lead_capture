@@ -1,10 +1,12 @@
 // src/services/leadService.js — Public API calls
-// Base URL: import.meta.env.VITE_API_BASE_URL
+import axios from 'axios';
 
-// TODO: import axios from 'axios';
+const api = axios.create({
+  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api',
+});
 
 /**
  * Submit a new lead
- * @param {{ name, email, budgetRange, message }} data
+ * @param {{ name: string, email: string, budgetRange: string, message: string }} data
  */
-// TODO: export const submitLead = (data) => axios.post('/api/leads', data);
+export const submitLead = (data) => api.post('/leads', data);
