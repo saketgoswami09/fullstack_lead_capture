@@ -3,7 +3,13 @@ import {
   Search, LogOut, LayoutGrid, Sparkles, ChevronDown, 
   Users, Inbox, MessageCircle, CheckCircle 
 } from "lucide-react";
-import { useGetLeadsQuery, useUpdateLeadStatusMutation } from "../../store/leadsApi";
+import { 
+  useGetLeadsQuery, 
+  useUpdateLeadStatusMutation,
+  useGetMeQuery,
+  useLoginMutation,
+  useLogoutMutation
+} from "../../store/leadsApi";
 import {
   Button,
   Card,
@@ -36,12 +42,14 @@ const formatDate = (dateString) => {
 };
 
 export default function AdminPage() {
-  const [secret, setSecret] = useState(sessionStorage.getItem("adminSecret") || "");
-  
   const [searchInput, setSearchInput] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [page, setPage] = useState(1);
   const [actionError, setActionError] = useState(null);
+
+  const { data: adminData, isLoading: isAdminLoading, isError: isAdminError } = useGetMeQuery();
+  const [login, { isLoading: isLoginLoading }] = useLoginMutation();
+  const [logout] = useLogoutMutation();
 
   useEffect(() => {
     const handler = setTimeout(() => {
@@ -52,28 +60,33 @@ export default function AdminPage() {
   }, [searchInput]);
 
   const { data, isLoading, isError, error } = useGetLeadsQuery(
-    { search: debouncedSearch, page, limit: 10, secret },
-    { skip: !secret }
+    { search: debouncedSearch, page, limit: 10 },
+    { skip: !adminData }
   );
 
   const [updateStatus] = useUpdateLeadStatusMutation();
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    const val = new FormData(e.target).get("secret");
-    sessionStorage.setItem("adminSecret", val);
-    setSecret(val);
+    const formData = new FormData(e.target);
+    try {
+      await login({ 
+        email: formData.get("email"), 
+        password: formData.get("password") 
+      }).unwrap();
+    } catch (err) {
+      alert("Invalid email or password");
+    }
   };
 
-  const handleLogout = () => {
-    sessionStorage.removeItem("adminSecret");
-    setSecret("");
+  const handleLogout = async () => {
+    await logout();
   };
 
   const onStatusChange = async (id, newStatus) => {
     setActionError(null);
     try {
-      await updateStatus({ id, status: newStatus, secret }).unwrap();
+      await updateStatus({ id, status: newStatus }).unwrap();
     } catch (err) {
       console.error("Failed to update status:", err);
       setActionError("Failed to update lead status. Please try again.");
@@ -81,7 +94,11 @@ export default function AdminPage() {
     }
   };
 
-  if (!secret) {
+  if (isAdminLoading) {
+    return <div className="min-h-screen bg-canvas flex items-center justify-center"><Sparkles className="animate-spin text-brand-500 w-8 h-8" /></div>;
+  }
+
+  if (!adminData || isAdminError) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-canvas p-4">
         <Card className="w-full max-w-sm p-6 space-y-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded-3xl border-line">
@@ -90,11 +107,12 @@ export default function AdminPage() {
               <Sparkles className="h-6 w-6" />
             </div>
             <h1 className="text-xl font-bold text-ink">Admin Access</h1>
-            <p className="text-sm text-ink-soft">Enter the admin secret to continue.</p>
+            <p className="text-sm text-ink-soft">Sign in with your admin credentials.</p>
           </div>
           <form onSubmit={handleLogin} className="space-y-4">
-            <Input name="secret" type="password" placeholder="x-admin-secret..." required />
-            <Button type="submit" className="w-full transition-all active:scale-95">
+            <Input name="email" type="email" placeholder="admin@leaddesk.com" required />
+            <Input name="password" type="password" placeholder="Password" required />
+            <Button type="submit" loading={isLoginLoading} className="w-full transition-all active:scale-95">
               Sign In
             </Button>
           </form>

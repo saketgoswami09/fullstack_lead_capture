@@ -1,19 +1,32 @@
-'use strict';
+const jwt = require('jsonwebtoken');
+const Admin = require('../models/Admin');
 
-/**
- * @param {import('express').Request}  req
- * @param {import('express').Response} res
- * @param {import('express').NextFunction} next
- */
-module.exports = (req, res, next) => {
-  const secret = req.headers['x-admin-secret'];
+module.exports = async (req, res, next) => {
+  let token;
 
-  if (!secret || secret !== process.env.ADMIN_SECRET) {
-    return res.status(401).json({
-      success: false,
-      message: 'Unauthorized: invalid or missing admin secret',
-    });
+  // Check if token exists in cookies
+  if (req.cookies && req.cookies.jwt) {
+    token = req.cookies.jwt;
   }
 
-  next();
+  if (!token) {
+    return res.status(401).json({ success: false, message: 'Not authorized, no token' });
+  }
+
+  try {
+    // Verify token
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'fallback_secret');
+
+    // Attach admin to request (without password)
+    req.admin = await Admin.findById(decoded.id).select('-password');
+    
+    if (!req.admin) {
+      return res.status(401).json({ success: false, message: 'Not authorized, admin not found' });
+    }
+
+    next();
+  } catch (error) {
+    console.error('Auth middleware error:', error);
+    return res.status(401).json({ success: false, message: 'Not authorized, token failed' });
+  }
 };
