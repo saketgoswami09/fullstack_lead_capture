@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { submitLead } from '../../services/leadService';
+import { useSubmitLeadMutation } from '../../store/leadsApi';
 import styles from './LeadForm.module.css';
 
 const BUDGET_OPTIONS = [
@@ -12,30 +12,33 @@ const BUDGET_OPTIONS = [
 ];
 
 export default function LeadForm() {
-  const [serverError, setServerError] = useState('');
-  const [submitted,   setSubmitted]   = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+
+  // RTK Query mutation hook — gives us [triggerFn, { isLoading, error }]
+  const [submitLead, { isLoading, error }] = useSubmitLeadMutation();
 
   const {
     register,
     handleSubmit,
     reset,
-    formState: { errors, isSubmitting },
+    formState: { errors },
   } = useForm({ mode: 'onTouched' });
 
   const onSubmit = async (data) => {
-    setServerError('');
     try {
-      await submitLead(data);
+      await submitLead(data).unwrap(); // .unwrap() throws on error → caught below
       setSubmitted(true);
       reset();
-    } catch (err) {
-      const msg =
-        err.response?.data?.errors?.[0]?.message ||
-        err.response?.data?.message ||
-        'Something went wrong. Please try again.';
-      setServerError(msg);
+    } catch {
+      // error is already captured in RTK Query's `error` state
     }
   };
+
+  // Parse server-side error message from RTK Query error shape
+  const serverError =
+    error?.data?.errors?.[0]?.message ||
+    error?.data?.message ||
+    (error ? 'Something went wrong. Please try again.' : null);
 
   if (submitted) {
     return (
@@ -62,7 +65,7 @@ export default function LeadForm() {
           className={errors.name ? styles.inputError : ''}
           {...register('name', {
             required:  'Name is required',
-            minLength: { value: 2, message: 'Name must be at least 2 characters' },
+            minLength: { value: 2,   message: 'Name must be at least 2 characters' },
             maxLength: { value: 100, message: 'Name cannot exceed 100 characters' },
           })}
         />
@@ -112,20 +115,20 @@ export default function LeadForm() {
           className={errors.message ? styles.inputError : ''}
           {...register('message', {
             required:  'Message is required',
-            minLength: { value: 10, message: 'Message must be at least 10 characters' },
+            minLength: { value: 10,   message: 'Message must be at least 10 characters' },
             maxLength: { value: 1000, message: 'Message cannot exceed 1000 characters' },
           })}
         />
         {errors.message && <span className={styles.error}>{errors.message.message}</span>}
       </div>
 
-      {/* Server-side error */}
+      {/* Server-side error from RTK Query */}
       {serverError && (
         <div className={styles.serverError} role="alert">{serverError}</div>
       )}
 
-      <button type="submit" className={styles.submitBtn} disabled={isSubmitting}>
-        {isSubmitting ? 'Sending…' : 'Send Message →'}
+      <button type="submit" className={styles.submitBtn} disabled={isLoading}>
+        {isLoading ? 'Sending…' : 'Send Message →'}
       </button>
     </form>
   );
