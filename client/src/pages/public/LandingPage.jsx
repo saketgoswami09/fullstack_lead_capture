@@ -83,21 +83,29 @@ export default function LandingPage() {
         
       </main>
 
-      {/* ── Social proof strip ─────── */}
+      {/* ── Social proof strip & Footer ─────── */}
       <section className="bg-gray-900 py-10 text-white w-full border-t border-gray-800 relative z-10">
-        <div className="mx-auto flex max-w-7xl flex-col items-center justify-center gap-6 px-4 sm:flex-row sm:gap-16 sm:px-6 lg:px-8">
-          {[
-            "Trusted by 200+ founders",
-            "4.9 ★ average rating",
-            "98% project success rate",
-          ].map((t) => (
-            <span
-              key={t}
-              className="text-center text-sm font-medium uppercase tracking-wider text-gray-400"
-            >
-              {t}
-            </span>
-          ))}
+        <div className="mx-auto flex max-w-7xl flex-col items-center justify-center gap-8 px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col items-center justify-center gap-6 sm:flex-row sm:gap-16">
+            {[
+              "Trusted by 200+ founders",
+              "4.9 ★ average rating",
+              "98% project success rate",
+            ].map((t) => (
+              <span
+                key={t}
+                className="text-center text-sm font-medium uppercase tracking-wider text-gray-400"
+              >
+                {t}
+              </span>
+            ))}
+          </div>
+          
+          <div className="text-center mt-4 border-t border-gray-800 pt-6 w-full max-w-3xl">
+            <p className="text-xs text-gray-500">
+              Built for <a href="https://digitalheroesco.com" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors">Digital Heroes Training Task</a>
+            </p>
+          </div>
         </div>
       </section>
     </div>
